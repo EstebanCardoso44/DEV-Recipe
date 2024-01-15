@@ -1,0 +1,30 @@
+version: "3.8"
+volumes:
+  data:
+
+
+services:
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 1234
+      MYSQL_DATABASE: devops_database
+    restart: always
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - 3307:3306
+  web:
+    build: ./api_hello_world
+    environment:
+      MYSQL_DATABASE: devops_database
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 1234
+      MYSQL_HOST: db
+    ports:
+      - "2000:2000"
+    depends_on:
+      - db
+    restart: on-failure

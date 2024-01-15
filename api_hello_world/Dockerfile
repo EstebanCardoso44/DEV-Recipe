@@ -10,6 +10,8 @@ COPY package.json .
 
 # Install application dependencies.
 RUN npm install express
+RUN npm un mysql
+RUN npm install mysql2
 
 # Copy the rest of the application files.
 COPY . .
