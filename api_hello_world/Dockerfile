@@ -12,6 +12,7 @@ COPY package.json .
 RUN npm install express
 RUN npm un mysql
 RUN npm install mysql2
+RUN npm install --save-dev jest
 
 # Copy the rest of the application files.
 COPY . .
