@@ -1,7 +1,11 @@
 const express = require('express');
 const mysql = require('mysql2');
+const cors = require('cors'); // Ajout du module cors
 const app = express();
 const port = 2000;
+
+// Utilisation du middleware cors
+app.use(cors());
 
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,
