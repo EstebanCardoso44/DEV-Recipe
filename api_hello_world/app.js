@@ -83,3 +83,34 @@ app.get('/recette', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
   }
 });
+
+app.use(express.json()); // Middleware pour analyser le corps des requêtes en JSON
+
+app.post('/recette', async (req, res) => {
+  try {
+    const { recipe_name } = req.body;
+
+    // Vérifier si le nom de la recette est fourni
+    if (!recipe_name) {
+      return res.status(400).json({ error: "Le nom de la recette est requis" });
+    }
+
+    // Query pour insérer la nouvelle recette dans la base de données
+    const insertQuery = 'INSERT INTO Recipe (recipe_name) VALUES (?)';
+
+    // Exécuter la requête avec le nom de la recette
+    db.query(insertQuery, [recipe_name], (error, result) => {
+      if (error) {
+        console.error('Erreur lors de l\'insertion de la recette dans la base de données :', error);
+        res.status(500).json({ error: 'Erreur lors de l\'insertion de la recette dans la base de données' });
+      } else {
+        console.log('Recette insérée avec succès dans la base de données');
+        res.status(201).json({ success: true, message: 'Recette créée avec succès' });
+      }
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la création de la recette :', error);
+    res.status(500).json({ error: 'Erreur lors de la création de la recette' });
+  }
+});
