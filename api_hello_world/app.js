@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const app = express();
 const port = 2000;
 
-const connection = mysql.createConnection({
+const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
@@ -12,28 +12,36 @@ const connection = mysql.createConnection({
 
 console.log(process.env.MYSQL_HOST);
 
-app.get('/recette', async (req, res) => {
-  try {
-    // Query to retrieve data from the "recipe" table
-    const query = 'SELECT * FROM recipe';
+const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS Recipe (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      recipe_name VARCHAR(255) NOT NULL
+    )`;
 
-    // Execute the query
-    connection.query(query, (error, results) => {
-      if (error) {
-        console.error('Erreur lors de la récupération des données depuis la base de données :', error);
-        res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
-      } else {
-        // Send the retrieved data as JSON
-        res.json(results);
-      }
-    });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des données depuis la base de données :', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
+db.query(createTableQuery, (error) => {
+  if (error) {
+    console.error('Erreur lors de la création de la table Recipe :', error);
+    throw error;
+  }
+
+  console.log('Table Recipe créée avec succès.');
+});
+
+const insertIntoRecipe = `
+    INSERT INTO Recipe (recipe_name) VALUES
+      ('Tema ce poulet'),
+      ('BOULETTE')
+  `;
+
+db.query(insertIntoRecipe, (err) => {
+  if (err) {
+    console.error('Erreur lors de l\'insertion des valeurs dans la table Recipe :', err);
+  } else {
+    console.log('Valeurs insérées dans la table Recipe');
   }
 });
 
-connection.connect(error => {
+db.connect(error => {
   if (error) {
     console.log("A error has been occurred "
       + "while connecting to database.");
@@ -49,4 +57,25 @@ connection.connect(error => {
 
 app.get('/hello', (req, res) => {
   res.send('Hello, World!');
+});
+
+app.get('/recette', async (req, res) => {
+  try {
+    // Query to retrieve data from the "recipe" table
+    const query = 'SELECT * FROM Recipe';
+
+    // Execute the query
+    db.query(query, (error, results) => {
+      if (error) {
+        console.error('Erreur lors de la récupération des données depuis la base de données :', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
+      } else {
+        // Send the retrieved data as JSON
+        res.json(results);
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données depuis la base de données :', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
+  }
 });
