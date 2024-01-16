@@ -12,6 +12,27 @@ const connection = mysql.createConnection({
 
 console.log(process.env.MYSQL_HOST);
 
+app.get('/recette', async (req, res) => {
+  try {
+    // Query to retrieve data from the "recipe" table
+    const query = 'SELECT * FROM recipe';
+
+    // Execute the query
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.error('Erreur lors de la récupération des données depuis la base de données :', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
+      } else {
+        // Send the retrieved data as JSON
+        res.json(results);
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données depuis la base de données :', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des données depuis la base de données' });
+  }
+});
+
 connection.connect(error => {
   if (error) {
     console.log("A error has been occurred "
