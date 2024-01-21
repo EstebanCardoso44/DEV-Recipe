@@ -1,31 +1,34 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const app = express();
 const port = 2000;
 
-const connection = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-});
+let connection;
 
-console.log(process.env.MYSQL_HOST);
+if (process.env.NODE_ENV !== 'test') {
+  // Utiliser la connexion à la base de données pour exécuter une requête
+  connection = mysql.createPool({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+  });
 
-connection.connect(error => {
-  if (error) {
-    console.log("A error has been occurred "
-      + "while connecting to database.");
-    throw error;
+  // Pas besoin de connection.connect() ici avec createPool
+} else {
+  const testConfig = require('./config.test');
+  connection = mysql.createPool(testConfig);
+  // Pas besoin de connection.connect() ici avec createPool
+}
+
+app.get('/hello', async (req, res) => {
+  if (connection) {
+    // Utiliser la connexion à la base de données pour exécuter une requête
+    const [rows] = await connection.query('SELECT 1');
+    console.log(rows);
   }
 
-  //If Everything goes correct, Then start Express Server
-  app.listen(port, () => {
-    console.log("Database connection is Ready and "
-      + "Server is Listening on Port ", port);
-  })
-});
-
-app.get('/hello', (req, res) => {
   res.send('Hello, World!');
 });
+
+module.exports = { app, connection };

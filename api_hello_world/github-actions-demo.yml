@@ -1,0 +1,23 @@
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      TEST_MYSQL_HOST: localhost
+      TEST_MYSQL_USER: test_user
+      TEST_MYSQL_PASSWORD: test_password
+      TEST_MYSQL_DATABASE: test_database
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
