@@ -10,6 +10,7 @@ COPY package.json .
 
 # Install application dependencies.
 RUN npm install express
+RUN npm install cors
 RUN npm un mysql
 RUN npm install mysql2
 RUN npm install --save-dev jest

@@ -21,6 +21,13 @@ afterAll(async () => {
   }
 });
 
+beforeEach(async () => {
+  if (connection) {
+    // Réinitialiser l'état de la base de données si nécessaire
+    await connection.query('DELETE FROM votre_table');
+  }
+});
+
 describe('GET /hello', () => {
   test('répond avec "Hello, World!"', async () => {
     // Simuler le résultat de la requête attendu
@@ -32,9 +39,4 @@ describe('GET /hello', () => {
     expect(response.statusCode).toBe(200);
     expect(connection.query).toHaveBeenCalledTimes(1);
   });
-});
-
-beforeEach(async () => {
-  // Réinitialiser l'état de la base de données si nécessaire
-  await connection.query('DELETE FROM votre_table');
 });
