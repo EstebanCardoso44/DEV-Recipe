@@ -17,10 +17,27 @@ const db = mysql.createConnection({
 console.log(process.env.MYSQL_HOST);
 
 const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS Recipe (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      recipe_name VARCHAR(255) NOT NULL
-    )`;
+  CREATE TABLE IF NOT EXISTS Recipe (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_name VARCHAR(255) NOT NULL,
+    categorie TEXT,
+    description TEXT,
+    ingredients TEXT,
+    instructions TEXT,
+    preparation_time INT,
+    cooking_time INT,
+    total_time INT,
+    servings INT,
+    cuisine_type VARCHAR(50),
+    difficulty_level VARCHAR(50)
+  )`;
+
+const insertIntoRecipe = `
+  INSERT INTO Recipe (recipe_name,categorie, description, ingredients, instructions, preparation_time, cooking_time, total_time, servings, cuisine_type, difficulty_level)
+  VALUES
+    ('Tema ce poulet','Plat principal', 'Une délicieuse recette de poulet avec une sauce spéciale.', '500g de poulet, 2 cuillères à soupe de sauce soja, ...', '1. Mariner le poulet dans la sauce soja. 2. Cuire à feu moyen pendant 20 minutes.', 15, 20, 35, 4, 'Française', 'Facile'),
+    ('BOULETTE','dessert', 'Une recette de boulettes de viande savoureuse.', '300g de viande hachée, 1 oignon haché, ...', '1. Mélanger la viande hachée avec oignon. 2. Former des boulettes et cuire.', 10, 30, 40, 3, 'Italienne', 'Moyen')
+`;
 
 db.query(createTableQuery, (error) => {
   if (error) {
@@ -30,12 +47,6 @@ db.query(createTableQuery, (error) => {
 
   console.log('Table Recipe créée avec succès.');
 });
-
-const insertIntoRecipe = `
-    INSERT INTO Recipe (recipe_name) VALUES
-      ('Tema ce poulet'),
-      ('BOULETTE')
-  `;
 
 db.query(insertIntoRecipe, (err) => {
   if (err) {
