@@ -7,6 +7,8 @@ const port = 2000;
 // Utilisation du middleware cors
 app.use(cors());
 
+let connection; // Ajout de cette ligne pour déclarer la variable connection
+
 const db = mysql.createPool({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -109,4 +111,4 @@ app.post('/recette', async (req, res) => {
   }
 });
 
-module.exports = { app, db };
+module.exports = { app, db, connection }; // Ajout de connection ici

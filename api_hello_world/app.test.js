@@ -1,14 +1,11 @@
 const request = require('supertest');
-const mysql = require('mysql2/promise');
-const { app } = require('./app');
-const testConfig = require('./config.test');
-
-let connection;
+const { app, db, pool } = require('./app'); // Modification de l'importation pour inclure la pool
+let { connection, testConfig } = require('./config.test'); // Importer la connexion
 
 beforeAll(async () => {
   console.log('Connecting to the database...');
   try {
-    connection = await mysql.createConnection(testConfig);
+    await pool; // Attendre la pool au lieu d'une connexion unique
     console.log('Connected successfully!');
   } catch (error) {
     console.error('Error connecting to the database:', error);
@@ -16,25 +13,30 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  if (connection) {
-    await connection.end();
+  console.log('Closing the database connection pool...');
+  try {
+    await pool.end(); // Fermer la pool au lieu d'une connexion unique
+    console.log('Connection pool closed successfully!');
+  } catch (error) {
+    console.error('Error closing the database connection pool:', error);
   }
 });
 
-beforeEach(async () => {
-  if (connection) {
-    // Réinitialiser l'état de la base de données si nécessaire
-    await connection.query('DELETE FROM votre_table');
-  }
+beforeEach(() => {
+  // Créer un mock pour la connexion à la base de données
+  connection = {
+    query: jest.fn(),
+    end: jest.fn(),
+  };
 });
 
 describe('GET /hello', () => {
   test('répond avec "Hello, World!"', async () => {
     // Simuler le résultat de la requête attendu
     jest.spyOn(connection, 'query').mockResolvedValueOnce([['Hello, World!']]);
-
+  
     const response = await request(app).get('/hello');
-
+  
     expect(response.text).toBe('Hello, World!');
     expect(response.statusCode).toBe(200);
     expect(connection.query).toHaveBeenCalledTimes(1);
