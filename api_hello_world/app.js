@@ -61,10 +61,9 @@ app.get('/hello', (req, res) => {
 
 app.get('/recette', async (req, res) => {
   try {
-    // Query to retrieve data from the "recipe" table
     const query = 'SELECT * FROM Recipe';
 
-    // Execute the query
+    // Execute query
     db.query(query, (error, results) => {
       if (error) {
         console.error('Erreur lors de la récupération des données depuis la base de données :', error);
