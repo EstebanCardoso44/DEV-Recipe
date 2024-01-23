@@ -1,11 +1,11 @@
 const request = require('supertest');
-const { app, db, pool } = require('./app'); // Modification de l'importation pour inclure la pool
+const { app, db } = require('./app'); // Modification de l'importation pour inclure la pool
 let { connection, testConfig } = require('./config.test'); // Importer la connexion
 
 beforeAll(async () => {
   console.log('Connecting to the database...');
   try {
-    await pool; // Attendre la pool au lieu d'une connexion unique
+    await db; // Attendre la pool au lieu d'une connexion unique
     console.log('Connected successfully!');
   } catch (error) {
     console.error('Error connecting to the database:', error);
@@ -15,7 +15,7 @@ beforeAll(async () => {
 afterAll(async () => {
   console.log('Closing the database connection pool...');
   try {
-    await pool.end(); // Fermer la pool au lieu d'une connexion unique
+    await db.end(); // Fermer la pool au lieu d'une connexion unique
     console.log('Connection pool closed successfully!');
   } catch (error) {
     console.error('Error closing the database connection pool:', error);
