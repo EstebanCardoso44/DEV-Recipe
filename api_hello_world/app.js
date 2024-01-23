@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const cors = require('cors'); // Ajout du module cors
 const app = express();
 const port = 2000;
-const bcrypt = require('bcrypt');
 
 // Utilisation du middleware cors
 app.use(cors());
@@ -36,7 +35,7 @@ const createTableQuery = `
     difficulty_level VARCHAR(50)
   )`;
 
- // Création de la table User
+// Création de la table User
 const createUserTableQuery = `
   CREATE TABLE IF NOT EXISTS User (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -203,32 +202,32 @@ app.post('/recette', async (req, res) => {
 });
 
 app.use(express.json())
-  // Endpoint pour la création de compte (signup)
-  app.post('/register', async (req, res) => {
-    try {
-      const { username, password } = req.body;
-  
-      // Check if both username and password are provided
-      if (!username || !password) {
-        return res.status(400).json({ error: "Username and password are required" });
-      }
-  
-      // Query to insert the new user into the User table
-      const insertUserQuery = 'INSERT INTO User (username, password) VALUES (?, ?)';
-  
-      // Execute the query with the username and password
-      db.query(insertUserQuery, [username, password], (error, result) => {
-        if (error) {
-          console.error('Error inserting user into the database:', error);
-          res.status(500).json({ error: 'Error inserting user into the database' });
-        } else {
-          console.log('User inserted successfully into the database');
-          res.status(201).json({ success: true, message: 'User registered successfully' });
-        }
-      });
-  
-    } catch (error) {
-      console.error('Error registering user:', error);
-      res.status(500).json({ error: 'Error registering user' });
+// Endpoint pour la création de compte (signup)
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Check if both username and password are provided
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password are required" });
     }
-  });
+
+    // Query to insert the new user into the User table
+    const insertUserQuery = 'INSERT INTO User (username, password) VALUES (?, ?)';
+
+    // Execute the query with the username and password
+    db.query(insertUserQuery, [username, password], (error, result) => {
+      if (error) {
+        console.error('Error inserting user into the database:', error);
+        res.status(500).json({ error: 'Error inserting user into the database' });
+      } else {
+        console.log('User inserted successfully into the database');
+        res.status(201).json({ success: true, message: 'User registered successfully' });
+      }
+    });
+
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'Error registering user' });
+  }
+});
