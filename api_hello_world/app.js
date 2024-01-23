@@ -99,7 +99,19 @@ app.use(express.json()); // Middleware pour analyser le corps des requêtes en J
 
 app.post('/recette', async (req, res) => {
   try {
-    const { recipe_name } = req.body;
+    const {
+      recipe_name,
+      categorie,
+      description,
+      ingredients,
+      instructions,
+      preparation_time,
+      cooking_time,
+      total_time,
+      servings,
+      cuisine_type,
+      difficulty_level
+    } = req.body;
 
     // Vérifier si le nom de la recette est fourni
     if (!recipe_name) {
@@ -107,10 +119,38 @@ app.post('/recette', async (req, res) => {
     }
 
     // Query pour insérer la nouvelle recette dans la base de données
-    const insertQuery = 'INSERT INTO Recipe (recipe_name) VALUES (?)';
+    const insertQuery = `
+      INSERT INTO Recipe (
+        recipe_name, 
+        categorie, 
+        description, 
+        ingredients, 
+        instructions, 
+        preparation_time, 
+        cooking_time, 
+        total_time, 
+        servings, 
+        cuisine_type, 
+        difficulty_level
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    // Exécuter la requête avec le nom de la recette
-    db.query(insertQuery, [recipe_name], (error, result) => {
+    const values = [
+      recipe_name,
+      categorie || null,
+      description || null,
+      ingredients || null,
+      instructions || null,
+      preparation_time || null,
+      cooking_time || null,
+      total_time || null,
+      servings || null,
+      cuisine_type || null,
+      difficulty_level || null
+    ];
+
+    // Exécuter la requête avec les valeurs de la recette
+    db.query(insertQuery, values, (error, result) => {
       if (error) {
         console.error('Erreur lors de l\'insertion de la recette dans la base de données :', error);
         res.status(500).json({ error: 'Erreur lors de l\'insertion de la recette dans la base de données' });
