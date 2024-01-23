@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - feat/github-automatisation
+      -DEV
 
 jobs:
   test:
