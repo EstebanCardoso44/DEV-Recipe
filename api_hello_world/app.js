@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
-const cors = require('cors'); // Ajout du module cors
+const cors = require('cors');
+const loginRouter = require('./login'); // Chemin relatif pour importer login.js
+
 const app = express();
 const port = 2000;
 const bcrypt = require('bcrypt');

@@ -1,17 +1,13 @@
 const express = require('express');
-const bcrypt = require('bcrypt'); // Module pour le hachage des mots de passe
-const jwt = require('jsonwebtoken'); // Module pour la gestion des tokens JWT
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const cors = require('cors');
-const app = express();
-const port = 2000;
+const router = express.Router();
 
-// Utilisation du middleware cors pour permettre les requêtes cross-origin
-app.use(cors());
-// Middleware pour parser le corps des requêtes en JSON
-app.use(express.json());
+router.use(cors());
+router.use(express.json());
 
-// Connexion à la base de données MySQL
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -19,16 +15,14 @@ const db = mysql.createConnection({
   database: process.env.MYSQL_DATABASE,
 });
 
-// Création de la table Users si elle n'existe pas
-const Sign = `
+const createUsersTableQuery = `
   CREATE TABLE IF NOT EXISTS Users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL
+    recipe_username VARCHAR(255) NOT NULL,
+    recipe_password VARCHAR(255) NOT NULL
   )
 `;
 
-// Exécution de la requête de création de la table
 db.query(createUsersTableQuery, (error) => {
   if (error) {
     console.error('Erreur lors de la création de la table Users :', error);
@@ -38,14 +32,13 @@ db.query(createUsersTableQuery, (error) => {
   console.log('Table Users créée avec succès.');
 });
 
-// Endpoint pour l'inscription d'un nouvel utilisateur
-app.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { recipe_username, recipe_password } = req.body;
 
     // Vérifier si l'utilisateur existe déjà dans la base de données
-    const db = 'SELECT * FROM Users WHERE username = ?';
-    db.query(userExistsQuery, [username], async (error, results) => {
+    const userExistsQuery = 'SELECT * FROM Users WHERE recipe_username = ?';
+    db.query(userExistsQuery, [recipe_username], async (error, results) => {
       if (error) {
         console.error('Erreur lors de la vérification de l\'existence de l\'utilisateur :', error);
         return res.status(500).json({ error: 'Erreur lors de l\'inscription' });
@@ -56,11 +49,11 @@ app.post('/signup', async (req, res) => {
       }
 
       // Hacher le mot de passe pour le stockage sécurisé
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(recipe_password, 10);
 
       // Insérer le nouvel utilisateur dans la base de données
-      const insertQuerySignLog = 'INSERT INTO Users (username, password) VALUES (?, ?)';
-      db.query(insertUserQuery, [username, hashedPassword], (insertError) => {
+      const insertUserQuery = 'INSERT INTO Users (recipe_username, recipe_password) VALUES (?, ?)';
+      db.query(insertUserQuery, [recipe_username, hashedPassword], (insertError) => {
         if (insertError) {
           console.error('Erreur lors de l\'insertion de l\'utilisateur :', insertError);
           return res.status(500).json({ error: 'Erreur lors de l\'inscription' });
@@ -75,14 +68,13 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// Endpoint pour la connexion d'un utilisateur existant
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { recipe_username, recipe_password } = req.body;
 
     // Récupérer l'utilisateur depuis la base de données par son nom d'utilisateur
-    const getUserQuery = 'SELECT * FROM Users WHERE username = ?';
-    db.query(getUserQuery, [username], async (error, results) => {
+    const getUserQuery = 'SELECT * FROM Users WHERE recipe_username = ?';
+    db.query(getUserQuery, [recipe_username], async (error, results) => {
       if (error) {
         console.error('Erreur lors de la récupération de l\'utilisateur :', error);
         return res.status(500).json({ error: 'Erreur lors de la connexion' });
@@ -93,14 +85,14 @@ app.post('/login', async (req, res) => {
       }
 
       // Vérifier si le mot de passe fourni correspond à celui stocké dans la base de données
-      const isPasswordValid = await bcrypt.compare(password, results[0].password);
+      const isPasswordValid = await bcrypt.compare(recipe_password, results[0].recipe_password);
 
       if (!isPasswordValid) {
         return res.status(401).json({ error: 'Nom d\'utilisateur ou mot de passe incorrect' });
       }
 
       // Générer un token JWT pour l'authentification
-      const token = jwt.sign({ userId: results[0].id, username: results[0].username }, 'votre_secret_jwt', { expiresIn: '1h' });
+      const token = jwt.sign({ userId: results[0].id, recipe_username: results[0].recipe_username }, 'votre_secret_jwt', { expiresIn: '1h' });
 
       // Envoyer le token au client
       res.json({ token });
@@ -111,7 +103,5 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Lancement du serveur sur le port spécifié
-app.listen(port, () => {
-  console.log('Serveur en écoute sur le port', port);
-});
+
+module.exports = router;
