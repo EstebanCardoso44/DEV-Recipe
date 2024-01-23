@@ -14,6 +14,7 @@ RUN npm install cors
 RUN npm un mysql
 RUN npm install mysql2
 RUN npm install --save-dev jest
+RUN npm install bcrypt
 
 # Copy the rest of the application files.
 COPY . .
