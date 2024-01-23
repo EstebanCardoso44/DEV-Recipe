@@ -11,6 +11,8 @@ const testConfig = {
 // Créer une connexion à la base de données pour les tests
 const connection = mysql.createConnection(testConfig);
 
+require('iconv-lite').encodingExists('cesu8'); // Ajout de cette ligne pour gérer l'erreur d'encodage
+
 module.exports = {
   connection,  // Exporter la connexion pour qu'elle puisse être utilisée dans les tests
   testConfig,
@@ -19,4 +21,3 @@ module.exports = {
 test('dummy test', () => {
   expect(true).toBe(true);
 });
-
